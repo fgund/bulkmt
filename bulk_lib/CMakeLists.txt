@@ -18,7 +18,7 @@ if (MSVC)
     )
 else ()
     find_package(Threads REQUIRED)
-    target_link_libraries(${CMAKE_PROJECT_NAME} Threads::Threads)
+    target_link_libraries(${PROJECT_NAME} Threads::Threads)
     target_compile_options(${PROJECT_NAME} PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
