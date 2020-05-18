@@ -1,4 +1,4 @@
 <map id="FileLogger" name="FileLogger">
-<area shape="rect" id="node2" href="$struct_i_observer.html" title="IObserver\&lt; std::string \&gt;" alt="" coords="5,5,185,32"/>
-<area shape="rect" id="node3" href="$struct_i_observer.html" title="IObserver\&lt; timepoint \&gt;" alt="" coords="210,5,389,32"/>
+<area shape="rect" id="node2" href="$struct_i_observer.html" title="IObserver\&lt; CmdList \&gt;" alt="" coords="5,5,173,32"/>
+<area shape="rect" id="node3" href="$struct_i_observer.html" title="IObserver\&lt; timepoint \&gt;" alt="" coords="197,5,376,32"/>
 </map>

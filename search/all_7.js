@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['process',['Process',['../class_bulk.html#aab9100947e56720e6b20c990d83196f1',1,'Bulk']]]
+  ['notify',['Notify',['../struct_i_observable.html#a69b757da498d26bb546af74ed8ba5277',1,'IObservable']]]
 ];
