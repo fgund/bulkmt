@@ -8,25 +8,29 @@
 #include <iostream>
 #include "IObserver.h"
 #include "IObservable.h"
+#include "CmdList.h"
+
 class Bulk
 {
 public:
 	Bulk(int size);
 	~Bulk();
 	void Process(std::string&& cmd);
-	IObservable<std::string>& GetResultNotifier();
+	IObservable<CmdList>& GetResultNotifier();
 	IObservable<std::chrono::system_clock::time_point>& GetTimeNotifier();
 private: //methods
 	void NotifyResult();
 	void NotifyTime();
-	std::string PrepareOutput();
 private:
+    size_t cmd_counter{0};
+    size_t block_counter{0};
+    size_t line_counter{0};
 	bool has_nested{ false };
 	size_t bulk_size;
 	int nested_counter{ 0 };
-	IObservable<std::string> result_notifier;
+	IObservable<CmdList> result_notifier;
 	IObservable<std::chrono::system_clock::time_point> time_notifier;
-	std::vector<std::string> commands;
+    CmdList commands;
 };
 
 

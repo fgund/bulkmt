@@ -6,14 +6,20 @@ Bulk::~Bulk() {
 	if (!commands.empty() && !has_nested) {
 		NotifyResult();
 	}
+    std::cout << "Main. Lines: " << line_counter
+              <<", blocks: " << block_counter
+              <<", commands: " << cmd_counter << std::endl;
 }
 void Bulk::NotifyResult() {
-	result_notifier.Notify(PrepareOutput());
+    cmd_counter += commands.size();
+    ++block_counter;
+	result_notifier.Notify(commands);
 }
 void Bulk::NotifyTime() {
 	time_notifier.Notify(std::chrono::system_clock::now());
 }
 void Bulk::Process(std::string&& cmd) {
+    ++line_counter;
 	if (cmd == "{") {
 		has_nested = true;
 		++nested_counter;
@@ -39,19 +45,8 @@ void Bulk::Process(std::string&& cmd) {
 		commands.clear();
 	}
 }
-std::string Bulk::PrepareOutput() {
-	std::string result{ "bulk: " };
-	auto it = commands.begin();
-	auto end = commands.end();
-	for (; it != end; ++it) {
-		if (it != commands.begin()) {
-			result.append(", ");
-		}
-		result.append(*it);
-	}
-	return result;
-}
-IObservable<std::string>& Bulk::GetResultNotifier() {
+
+IObservable<CmdList>& Bulk::GetResultNotifier() {
 	return result_notifier;
 }
 IObservable<std::chrono::system_clock::time_point>& Bulk::GetTimeNotifier() {

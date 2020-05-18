@@ -6,8 +6,9 @@
 #include <queue>
 #include <condition_variable>
 #include <mutex>
+#include "CmdList.h"
 
-struct ConsoleLogger : public IObserver<std::string>
+struct ConsoleLogger : public IObserver<CmdList>
 {
     ConsoleLogger() {
         m_thread = std::thread(&ConsoleLogger::Run, this);
@@ -19,13 +20,15 @@ struct ConsoleLogger : public IObserver<std::string>
             m_thread.join();
         }
     };
-	virtual void Update(std::string param) override {
+	virtual void Update(CmdList param) override {
         m_tasks.push(param);
         m_condition.notify_one();
 	}
 private:
 	void Run(){
-	    while (!m_stopped) {
+        thread_local size_t cmd_counter{0};
+        thread_local size_t block_counter{0};
+        while (!m_stopped) {
             std::unique_lock<std::mutex> lck{m_mutex};
             while (!m_stopped && m_tasks.empty())
                 m_condition.wait(lck);
@@ -33,24 +36,28 @@ private:
             if (m_stopped) {
                 break;
             }
-            auto param = m_tasks.front();
-            m_tasks.pop();
-            Log(param);
+            Log(cmd_counter, block_counter);
         }
         while(!m_tasks.empty()) {
-            auto param = m_tasks.front();
-            m_tasks.pop();
-            Log(param);
+            Log(cmd_counter, block_counter);
         }
+        //std::unique_lock<std::mutex> lck{m_mutex};
+        std::cout << "Log_" << std::this_thread::get_id()
+                  <<", blocks: " << block_counter
+                  <<", commands: " << cmd_counter << std::endl;
     }
-    void Log(std::string_view param){
-        std::cout << param.data() << std::endl;
+    void Log(size_t& cmd_counter, size_t& block_counter){
+        auto param = m_tasks.front();
+        m_tasks.pop();
+        cmd_counter += param.size();
+        ++block_counter;
+        std::cout << param.to_string() << std::endl;
 	}
 private:
     std::condition_variable m_condition;
     std::thread m_thread;
     std::mutex m_mutex;
-    std::queue<std::string> m_tasks;
+    std::queue<CmdList> m_tasks;
     std::atomic<bool> m_stopped{false};
 };
 

@@ -8,9 +8,10 @@
 #include <mutex>
 #include <array>
 #include "IObserver.h"
+#include "CmdList.h"
 
 using timepoint = std::chrono::system_clock::time_point;
-struct FileLogger : public IObserver<std::string>, public IObserver<timepoint>
+struct FileLogger : public IObserver<CmdList>, public IObserver<timepoint>
 {
     FileLogger(){
         for(auto& thread : m_thread_pool) {
@@ -26,7 +27,7 @@ struct FileLogger : public IObserver<std::string>, public IObserver<timepoint>
             }
         }
     }
-	virtual void Update(std::string param) override {
+	virtual void Update(CmdList param) override {
         m_tasks.push(param);
         m_condition.notify_one();
 	}
@@ -35,6 +36,8 @@ struct FileLogger : public IObserver<std::string>, public IObserver<timepoint>
 	}
 private:
     void Run(){
+        thread_local size_t cmd_counter{0};
+        thread_local size_t block_counter{0};
         while (!m_stopped) {
             std::unique_lock<std::mutex> lck{m_mutex};
             while (!m_stopped && m_tasks.empty())
@@ -43,22 +46,25 @@ private:
             if (m_stopped) {
                 break;
             }
-            auto param = m_tasks.front();
-            m_tasks.pop();
-            Log(param);
+            Log(cmd_counter, block_counter);
         }
         std::unique_lock<std::mutex> lck{m_mutex};
         while(!m_tasks.empty()) {
-            auto param = m_tasks.front();
-            m_tasks.pop();
-            Log(param);
+            Log(cmd_counter, block_counter);
         }
+        std::cout << "File_" << std::this_thread::get_id()
+                  <<", blocks: " << block_counter
+                  <<", commands: " << cmd_counter << std::endl;
     }
-    void Log(std::string_view param){
+    void Log(size_t& cmd_counter, size_t& block_counter){
+        auto param = m_tasks.front();
+        m_tasks.pop();
+        cmd_counter += param.size();
+        ++block_counter;
         std::ofstream file(filename);
         if (file.is_open())
         {
-            file << std::this_thread::get_id()<< ":\n" << param.data();
+            file << std::this_thread::get_id()<< ":\n" << param.to_string();
             file.close();
         }
     }
@@ -67,7 +73,7 @@ private:
     std::condition_variable m_condition;
     std::array<std::thread,2> m_thread_pool;
     std::mutex m_mutex;
-    std::queue<std::string> m_tasks;
+    std::queue<CmdList> m_tasks;
     std::atomic<bool> m_stopped{false};
 };
 

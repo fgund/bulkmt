@@ -1,7 +1,5 @@
 #ifndef IOBSERVER_H
 #define IOBSERVER_H
-#include <string>
-#include <chrono>
 
 template<typename T>
 struct IObserver

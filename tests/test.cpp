@@ -2,7 +2,7 @@
 #include "bulk.h"
 #include "TestLogger.h"
 
-void RunBulk(size_t bulk_size, std::vector<std::string> input, std::shared_ptr<IObserver<std::string> > test_logger){
+void RunBulk(size_t bulk_size, std::vector<std::string> input, std::shared_ptr<IObserver<CmdList> > test_logger){
     Bulk bulk(bulk_size);
     bulk.GetResultNotifier().AddObserver(test_logger);
     for(auto& cmd : input){

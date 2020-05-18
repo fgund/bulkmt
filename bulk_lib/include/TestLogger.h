@@ -3,17 +3,18 @@
 #include <string>
 #include <vector>
 #include "IObserver.h"
-struct TestLogger : public IObserver<std::string>
+#include "CmdList.h"
+struct TestLogger : public IObserver<CmdList>
 {
     ~TestLogger(){};
-    virtual void Update(std::string param) override {
-        bulks.emplace_back(param);
+    virtual void Update(CmdList param) override {
+        bulks.emplace_back(param.to_string());
     }
     const std::vector<std::string>& GetBulks(){
-        return bulks;
+        return bulks.get_data();
     }
 private:
-    std::vector<std::string> bulks;
+    CmdList bulks;
 };
 
 #endif //TEST_LOGGER_H
